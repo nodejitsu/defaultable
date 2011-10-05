@@ -20,6 +20,7 @@ var test = require('tap').test
   ;
 
 function E(msg) { return new Error(msg) }
+function noop() {}
 
 test('Input validation', function(t) {
   var er = E('Defaults must be an object');
@@ -34,8 +35,30 @@ test('Input validation', function(t) {
   t.throws(bad_defs()     , er, 'Throws for undefined defs');
   t.throws(bad_defs(null) , er, 'Throws for null defs');
   t.throws(bad_defs([1,2]), er, 'Throws for array defs');
+  t.throws(bad_defs(noop) , er, 'Throws for function defs');
 
   t.doesNotThrow(bad_defs({}), 'Empty defaults is no problem');
+
+  t.end();
+})
+
+test('Flexible parameter order', function(t) {
+  var api;
+  function forward () { api = D({dir:'forward'}, my_mod) }
+  function backward() { api = D(my_mod, {dir:'backward'}) }
+  function my_mod(_mod, exp, defs) {
+    exp.dir = function() { return defs.dir };
+  }
+
+  api = null;
+  t.doesNotThrow(forward, 'Defaults first is ok');
+  t.ok(api, 'Defaults first returns the API');
+  t.equal('forward', api.dir(), 'Defaults first works');
+
+  api = null;
+  t.doesNotThrow(backward, 'Defaults second is ok');
+  t.ok(api, 'Defaults second returns the API');
+  t.equal('backward', api.dir(), 'Defaults second works');
 
   t.end();
 })
