@@ -84,3 +84,40 @@ test('Just using exports', function(t) {
 
   t.end();
 })
+
+test('Using module.exports', function(t) {
+  var api, just_exports, just_module;
+
+  function doesnt_replace(module, exports) {
+    just_exports = exports;
+    just_module = module;
+
+    exports.val1 = 'val1';
+    module.exports.val2 = 'val2';
+  }
+
+  function does_replace(module, exports) {
+    just_exports = exports;
+    just_module = module;
+
+    exports.val1 = 'BAD';
+    module.exports = {'val2': 'GOOD'};
+  }
+
+  just_exports = just_module = null;
+  api = defaultable({}, doesnt_replace);
+  t.equal(api.val1, 'val1', 'exports coexists with module.exports');
+  t.equal(api.val2, 'val2', 'module.exports coexists with exports');
+  t.same(just_module.exports, just_exports, 'module.exports and exports are the same');
+
+  just_exports = just_module = null;
+  api = defaultable({}, does_replace);
+  t.ok(just_exports.val1, 'exports should still have val1');
+  t.notOk(api.val1, 'api val1 should be missing');
+  t.notOk(just_module.exports.val1, 'api module.exports.val1 was replaced away');
+
+  t.equal(api.val2, 'GOOD', 'module.exports replacement works');
+  t.same(Object.keys(api).length, 2, 'module.exports assignment'); // val2 and .defaults()
+
+  t.end();
+})
