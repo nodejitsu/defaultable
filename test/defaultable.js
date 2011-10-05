@@ -32,11 +32,11 @@ test('Input validation', function(t) {
     }
   }
 
-  t.throws(bad_defs()     , er, 'Throws for undefined defs');
   t.throws(bad_defs(null) , er, 'Throws for null defs');
   t.throws(bad_defs([1,2]), er, 'Throws for array defs');
   t.throws(bad_defs(noop) , er, 'Throws for function defs');
 
+  t.doesNotThrow(bad_defs()  , 'Undefined defaults is no problem');
   t.doesNotThrow(bad_defs({}), 'Empty defaults is no problem');
 
   t.end();
@@ -44,11 +44,17 @@ test('Input validation', function(t) {
 
 test('Flexible parameter order', function(t) {
   var api;
+  function justone () { api = D(my_mod) }
   function forward () { api = D({dir:'forward'}, my_mod) }
   function backward() { api = D(my_mod, {dir:'backward'}) }
   function my_mod(_mod, exp, defs) {
     exp.dir = function() { return defs.dir };
   }
+
+  api = null;
+  t.doesNotThrow(justone, 'No defaults at all is ok');
+  t.ok(api, 'No defaults returns the API');
+  t.type(api.dir(), 'undefined', 'No defaults is just an empty object');
 
   api = null;
   t.doesNotThrow(forward, 'Defaults first is ok');

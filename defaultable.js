@@ -23,6 +23,9 @@ function defaultable(initial_defs, definer) {
     initial_defs = args[1];
   }
 
+  if(typeof initial_defs == 'undefined')
+    initial_defs = {};
+
   if(!initial_defs || Array.isArray(initial_defs) || typeof initial_defs != 'object')
     throw new Error('Defaults must be an object');
 
