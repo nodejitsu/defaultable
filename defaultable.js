@@ -17,6 +17,9 @@
 module.exports = defaultable;
 
 function defaultable(initial_defs, definer) {
+  if(!initial_defs || Array.isArray(initial_defs) || typeof initial_defs != 'object')
+    throw new Error('Defaults must be an object');
+
   if(!definer && typeof initial_defs === 'function') {
     definer = initial_defs;
     initial_defs = {};
