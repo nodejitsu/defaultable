@@ -62,3 +62,25 @@ test('Flexible parameter order', function(t) {
 
   t.end();
 })
+
+test('Just using exports', function(t) {
+  var api = defaultable({}, my_mod);
+  function my_mod(module, exports) {
+    function exports_func(input) { return input || true }
+    exports.func = exports_func;
+    exports.val = 23;
+  }
+
+  t.ok(api.func, 'Export functions via `exports`');
+  t.ok(api.val, 'Export values via `exports`');
+
+  t.isa(api.func, 'function', 'Export function via `exports`');
+  t.equal(api.func.name, 'exports_func', 'Nothing wrapped in `exports`');
+  t.equal(api.func.length, 1, 'Exported function in `exports` length');
+  t.equal(api.func('hi'), 'hi', 'Export function via `exports` works');
+
+  t.isa(api.val, 'number', 'Export values via `exports`');
+  t.equal(api.val, 23, 'Export values work via `exports`');
+
+  t.end();
+})
