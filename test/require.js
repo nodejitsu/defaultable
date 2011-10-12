@@ -38,6 +38,7 @@ test('requiring defaultable modules passes defaults to them', function(t) {
   function i_require_stuff(_mod, exps, _DEF, require) {
     exps.is = require('./mod/is_defaultable');
     exps.is_not = require('./mod/is_not_defaultable');
+    exps.legacy = require('./mod/legacy_defaults');
   }
 
   var mod;
@@ -64,7 +65,12 @@ test('requiring defaultable modules passes defaults to them', function(t) {
     t.equal(mod.is.get('original'), 'value', 'Defaultable module still has its defaults')
     t.equal(mod.is.get('should'), should_val, 'Defaultable module inherits defaults with require() ' + should_val)
     t.type(mod.is.defaults, 'function', 'Defaultable modules still have defaults() functions')
+    t.ok(mod.is.defaults._defaultable, 'Defaultable modules default() functions are recognizable')
     t.equal(Object.keys(mod.is).length, 2+1, 'Defaultable modules export the same stuff, plus defaults()')
     t.ok(mod.is.req._defaultable, 'Defaultable modules get the special require')
+
+    t.type(mod.legacy.defaults, 'function', 'Legacy modules can export .defaults()')
+    t.notOk(mod.legacy.defaults._defaultable, 'Legacy modules .defaults are not mine')
+    t.throws(mod.legacy.defaults, 'Legacy .defaults() function runs like it always has')
   }
 })

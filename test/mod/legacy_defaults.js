@@ -14,4 +14,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-exports.defaults = 'I am defaults';
+exports.defaults = function(val) {
+  throw new Error('Never call me: ' + val);
+}
