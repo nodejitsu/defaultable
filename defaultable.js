@@ -14,29 +14,14 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-var path_lib = require('path');
-
-module.exports = defaultable;
+module.exports = good_args(defaultable);
 module.exports.merge = merge_obj;
 
+var path_lib = require('path');
 var real_require = require;
 
 
-function defaultable(_Mod, _Defs, _Definer) {
-  var args = Array.prototype.slice.call(arguments);
-  var m0dule = { 'exports': {} };
-
-  if(args.length == 1)
-    return defaultize(m0dule, {}, args[0]);
-  else if(args.length == 2)
-    return defaultize(m0dule, args[0], args[1]);
-  else if(args.length > 2)
-    return defaultize.apply(this, args);
-  else
-    throw new Error('Unknown arguments: ' + JSON.stringify(args));
-}
-
-function defaultize(real_module, initial_defs, definer) {
+function defaultable(real_module, initial_defs, definer) {
   if(!real_module || !real_module.exports)
     throw new Error('Need to provide the module, with .exports object');
 
@@ -87,9 +72,6 @@ function defaultize(real_module, initial_defs, definer) {
   }
 }
 
-function is_obj(val) {
-  return val && !Array.isArray(val) && (typeof val === 'object')
-}
 
 // Recursively merge higher-priority values into previously-set lower-priority ones.
 function merge_obj(high, low) {
@@ -123,4 +105,32 @@ function merge_obj(high, low) {
   })
 
   return result;
+}
+
+
+//
+// Utilities
+//
+
+function good_args(func) {
+  // Make a function validate its parameters.
+  return good;
+
+  function good(_Mod, _Defs, _Definer) {
+    var args = Array.prototype.slice.call(arguments);
+    var m0dule = { 'exports': {} };
+
+    if(args.length == 1)
+      return func(m0dule, {}, args[0]);
+    else if(args.length == 2)
+      return func(m0dule, args[0], args[1]);
+    else if(args.length > 2)
+      return func.apply(this, args);
+    else
+      throw new Error('Unknown arguments: ' + JSON.stringify(args));
+  }
+}
+
+function is_obj(val) {
+  return val && !Array.isArray(val) && (typeof val === 'object')
 }
