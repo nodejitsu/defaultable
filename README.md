@@ -73,8 +73,7 @@ Your new code:
 // my_mod.js
 
 // Insert these lines at the top...
-var defaultable = require('defaultable');
-module.exports = defaultable(
+require('defaultable')(module,
   { "minimum": 0
   , "dollars": 0
   }, function(module, exports, DEFAULTS) { // The rest of your code follows unchanged.
