@@ -19,8 +19,6 @@ var test = require('tap').test
   , D = defaultable
   ;
 
-function m0dule() { return {'exports':{}} }
-
 test('Input validation', function(t) {
   var er = new Error('Defaults must be an object');
   function noop() {}
@@ -28,7 +26,7 @@ test('Input validation', function(t) {
   function bad_defs(defs) {
     return make_bad_defs;
     function make_bad_defs() {
-      return defaultable(m0dule(), defs, function(module, exports, DEFS) {});
+      return defaultable(defs, function(module, exports, DEFS) {});
     }
   }
 
@@ -52,23 +50,30 @@ test('exports.default is not allowed', function(t) {
     t.throws(mod_export_defaults, msg);
 
     function export_defaults() {
-      defaultable(m0dule(), {}, function(mods, exps) { exps.defaults = val })
+      defaultable({}, function(mods, exps) { exps.defaults = val })
     }
 
     function mod_export_defaults() {
-      defaultable(m0dule(), {}, function(module) { module.exports = { 'defaults': val } });
+      defaultable({}, function(module) { module.exports = { 'defaults': val } });
     }
   })
 })
 
 test('Flexible parameter order', function(t) {
-  var api;
-  function justone () { api = D(my_mod) }
-  function forward () { api = D({dir:'forward'}, my_mod) }
-  function backward() { api = D(my_mod, {dir:'backward'}) }
   function my_mod(_mod, exp, defs) {
     exp.dir = function() { return defs.dir };
   }
+
+  function justone () { api = D(my_mod) }
+  function forward () { api = D({dir:'forward'}, my_mod) }
+  function backward() { api = D(my_mod, {dir:'backward'}) }
+  function withmod () {
+    var mod = { 'exports': {} };
+    defaultable(mod, {dir:'sideways'}, my_mod);
+    api = mod.exports;
+  }
+
+  var api;
 
   api = null;
   t.doesNotThrow(justone, 'No defaults at all is ok');
@@ -81,13 +86,18 @@ test('Flexible parameter order', function(t) {
   t.equal('forward', api.dir(), 'Defaults first works');
 
   api = null;
-  t.throws(backward, 'Defaults second is ok');
+  t.doesNotThrow(withmod, 'With a module is ok')
+  t.ok(api, 'With a module sets the API')
+  t.equal(api.dir(), 'sideways', 'Using the module works')
+
+  api = null;
+  t.throws(backward, 'Defaults second is not ok');
 
   t.end();
 })
 
 test('Just using exports', function(t) {
-  var api = defaultable(m0dule(), {}, my_mod);
+  var api = defaultable({}, my_mod);
   function my_mod(module, exports) {
     function exports_func(input) { return input || true }
     exports.func = exports_func;
@@ -128,13 +138,13 @@ test('Using module.exports', function(t) {
   }
 
   just_exports = just_module = null;
-  api = defaultable(m0dule(), {}, doesnt_replace);
+  api = defaultable({}, doesnt_replace);
   t.equal(api.val1, 'val1', 'exports coexists with module.exports');
   t.equal(api.val2, 'val2', 'module.exports coexists with exports');
   t.same(just_module.exports, just_exports, 'module.exports and exports are the same');
 
   just_exports = just_module = null;
-  api = defaultable(m0dule(), {}, does_replace);
+  api = defaultable({}, does_replace);
   t.ok(just_exports.val1, 'exports should still have val1');
   t.notOk(api.val1, 'api val1 should be missing');
   t.notOk(just_module.exports.val1, 'api module.exports.val1 was replaced away');

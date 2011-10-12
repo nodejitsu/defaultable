@@ -32,11 +32,15 @@ function defaultable(_Mod, _Defs, _Definer) {
 }
 
 function defaultize(real_module, initial_defs, definer) {
+  if(!real_module || !real_module.exports)
+    throw new Error('Need to provide the module, with .exports object');
+
   if(!initial_defs || Array.isArray(initial_defs) || typeof initial_defs != 'object')
     throw new Error('Defaults must be an object');
 
   var defaulter = make_defaulter({});
-  return defaulter(initial_defs);
+  real_module.exports = defaulter(initial_defs);
+  return real_module.exports;
 
   function make_defaulter(old_defs) {
     return defaulter;
