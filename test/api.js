@@ -42,6 +42,25 @@ test('Input validation', function(t) {
   t.end();
 })
 
+test('exports.default is not allowed', function(t) {
+  var vals = [function() { return 'hi' }, 'some string', 23, null, undefined]
+
+  t.plan(vals.length * 2);
+  vals.forEach(function(val) {
+    var msg = 'Exporting something called "defaults" is not allowed: ' + val;
+    t.throws(export_defaults, msg);
+    t.throws(mod_export_defaults, msg);
+
+    function export_defaults() {
+      defaultable({}, function(mods, exps) { exps.defaults = val })
+    }
+
+    function mod_export_defaults() {
+      defaultable({}, function(module) { module.exports = { 'defaults': val } });
+    }
+  })
+})
+
 test('Flexible parameter order', function(t) {
   var api;
   function justone () { api = D(my_mod) }

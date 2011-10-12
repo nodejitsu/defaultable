@@ -49,7 +49,11 @@ function defaultable(initial_defs, definer) {
       definer(faux_module, faux_exports, final_defs);
 
       var api = faux_module.exports;
-      api.defaults = make_defaulter(final_defs);
+
+      if('defaults' in api)
+        throw new Error('defaultable modules may not export a label called "defaults"');
+      else
+        api.defaults = make_defaulter(final_defs);
 
       return api;
     }
