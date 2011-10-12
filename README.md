@@ -130,3 +130,19 @@ var http = require('http');               // Still works.
 
 })
 ```
+
+If you *do not* want your module to inherit anything implicitly, use Defaultable's `.def()` function instead. This is useful for top-level modules of packages, for example.
+
+```javascript
+// main.js -- The "main" file in package.json
+require('defaultable').def(module,
+  { "minimum": 0
+  , "dollars": 0
+  }, function(module, exports, DEFS) {
+
+exports.check = function() {
+  console.log("Dollars = " + dollars); // Always "0" for require(); still changeable via .defaults()
+}
+
+})
+```
