@@ -19,9 +19,7 @@ require('../../defaultable')(module,
   , 'should'  : 'be replaced'
   }, function(module, exports, DEFS, require) {
 
-console.error('MOD LOADING: ' + JSON.stringify(DEFS));
 exports.get = function(val) {
-  console.error('MOD get: ' + val + ' => ' + JSON.stringify(DEFS[val]))
   return DEFS[val];
 }
 
