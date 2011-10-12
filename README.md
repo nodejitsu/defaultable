@@ -94,6 +94,39 @@ exports.do_stuff = function(person, opts) {
 
 It's really simple.
 
-Defaultable passes the initial defaults to you as `DEFAULTS` (or whatever name you like). Use `module`, `module.exports`, or `exports` as usual.
+Defaultable passes the initial defaults to you as `DEFAULTS`. Use `module`, `module.exports`, or `exports` as usual to build your module API.
 
-The upshot is, whatever you export (via `exports` or `module.exports`) gets an additional `.defaults()` function to re-evaluate the code with user-provided defaults. Those defaults inherit from the old ones.
+Your API gets an additional `.defaults()` function, which will re-evaluate your code with new user-provided defaults.
+
+## Automatic defaults in require()
+
+If you have multiple related modules, it can be nice for them to share defaults.
+
+```javascript
+// main.js
+require('defaultable')(module,
+  { "minimum": 0
+  , "dollars": 0
+  }, function(module, exports, DEFS) {
+
+var submod = require('./sub_mod').defaults(DEFS); // Bad!
+
+})
+```
+
+For this situation, defaultable provides a wrapped `require()` function. It works just like before, however if the modules you load is itself defaultable, it will be initialized with the current defaults.
+
+```javascript
+// main.js
+require('defaultable')(module,
+  { "minimum": 0
+  , "dollars": 0
+  }, function(module, exports, DEFS, require) {
+
+var submod = require('./sub_mod'); // Good! Notice the "require" parameter above.
+
+var legacy_mod = require('./legacy_mod'); // Still works.
+var http = require('http');               // Still works.
+
+})
+```
