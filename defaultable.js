@@ -15,10 +15,18 @@
 //    limitations under the License.
 
 module.exports = good_args(defaultable);
+module.exports.def   = good_args(fresh_defaultable);
 module.exports.merge = merge_obj;
 
 var path_lib = require('path');
 var real_require = require;
+
+
+function fresh_defaultable(_mod, _defs, _definer) {
+  var mod = defaultable.apply(this, arguments);
+  mod.defaults._defaultable.fresh = true;
+  return mod;
+}
 
 
 function defaultable(real_module, initial_defs, definer) {
@@ -43,7 +51,7 @@ function defaultable(real_module, initial_defs, definer) {
   return real_module.exports;
 
   function make_defaulter(old_defs) {
-    defaulter._defaultable = true;
+    defaulter._defaultable = {};
     return defaulter;
 
     function defaulter(new_defs) {
@@ -54,7 +62,7 @@ function defaultable(real_module, initial_defs, definer) {
       require._defaultable = true;
       function require(path) {
         var mod = mod_require(path);
-        if(mod.defaults && typeof mod.defaults === 'function' && mod.defaults._defaultable)
+        if(mod.defaults && typeof mod.defaults === 'function' && mod.defaults._defaultable && !mod.defaults._defaultable.fresh)
           return mod.defaults(final_defs);
         return mod;
       }

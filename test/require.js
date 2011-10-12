@@ -39,6 +39,7 @@ test('requiring defaultable modules passes defaults to them', function(t) {
     exps.is = require('./mod/is_defaultable');
     exps.is_not = require('./mod/is_not_defaultable');
     exps.legacy = require('./mod/legacy_defaults');
+    exps.fresh  = require('./mod/fresh_defaultable');
   }
 
   var mod;
@@ -55,6 +56,10 @@ test('requiring defaultable modules passes defaults to them', function(t) {
   t.end();
 
   function check_mod(should_val) {
+    t.type(mod.legacy.defaults, 'function', 'Legacy modules can export .defaults()')
+    t.notOk(mod.legacy.defaults._defaultable, 'Legacy modules .defaults are not mine')
+    t.throws(mod.legacy.defaults, 'Legacy .defaults() function runs like it always has')
+
     t.type(mod.is_not.get, 'function', 'Normal modules still export normally')
     t.equal(mod.is_not.get(), 'normal', 'Normal modules export normal stuff')
     t.notOk(mod.is_not.defaults, 'Normal modules do not have a defaults() function')
@@ -69,8 +74,12 @@ test('requiring defaultable modules passes defaults to them', function(t) {
     t.equal(Object.keys(mod.is).length, 2+1, 'Defaultable modules export the same stuff, plus defaults()')
     t.ok(mod.is.req._defaultable, 'Defaultable modules get the special require')
 
-    t.type(mod.legacy.defaults, 'function', 'Legacy modules can export .defaults()')
-    t.notOk(mod.legacy.defaults._defaultable, 'Legacy modules .defaults are not mine')
-    t.throws(mod.legacy.defaults, 'Legacy .defaults() function runs like it always has')
+    t.type(mod.fresh.get, 'function', 'Fresh defaultable module still exports normally')
+    t.type(mod.fresh.defaults, 'function', 'Fresh defaultable module still has defaults() function')
+    t.ok(mod.fresh.defaults._defaultable, 'Fresh defautlable module defaults() is recognizable')
+    t.equal(mod.fresh.get('should'), 'always fresh', 'Fresh defaultable module defauts not changed by require')
+
+    var fresh2 = mod.fresh.defaults({'should':should_val});
+    t.equal(fresh2.get('should'), should_val, 'Fresh defaultable module can set defaults normally')
   }
 })
