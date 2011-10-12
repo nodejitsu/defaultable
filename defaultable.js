@@ -14,8 +14,13 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
+var path_lib = require('path');
+
 module.exports = defaultable;
 module.exports.merge = merge_obj;
+
+var real_require = require;
+
 
 function defaultable(_Mod, _Defs, _Definer) {
   var args = Array.prototype.slice.call(arguments);
@@ -38,11 +43,22 @@ function defaultize(real_module, initial_defs, definer) {
   if(!initial_defs || Array.isArray(initial_defs) || typeof initial_defs != 'object')
     throw new Error('Defaults must be an object');
 
+  var mod_dir = path_lib.dirname(real_module.filename);
+  var mod_require = real_module.require || workaround_require;
+
+  workaround_require._defaultable = true;
+  function workaround_require(path) {
+    if(/^\.\//.test(path) || /^\.\.\//.test(path))
+      path = path_lib.resolve(mod_dir, path);
+    return real_require(path);
+  }
+
   var defaulter = make_defaulter({});
   real_module.exports = defaulter(initial_defs);
   return real_module.exports;
 
   function make_defaulter(old_defs) {
+    defaulter._defaultable = true;
     return defaulter;
 
     function defaulter(new_defs) {
@@ -50,10 +66,17 @@ function defaultize(real_module, initial_defs, definer) {
       var faux_module = {"exports":faux_exports};
       var final_defs = merge_obj(new_defs || {}, old_defs);
 
-      definer(faux_module, faux_exports, final_defs);
+      require._defaultable = true;
+      function require(path) {
+        var mod = mod_require(path);
+        if(mod.defaults && typeof mod.defaults === 'function' && mod.defaults._defaultable)
+          return mod.defaults(final_defs);
+        return mod;
+      }
+
+      definer(faux_module, faux_exports, final_defs, require);
 
       var api = faux_module.exports;
-
       if('defaults' in api)
         throw new Error('defaultable modules may not export a label called "defaults"');
       else
