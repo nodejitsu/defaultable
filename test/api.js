@@ -19,6 +19,8 @@ var test = require('tap').test
   , D = defaultable
   ;
 
+function m0dule() { return {'exports':{}} }
+
 test('Input validation', function(t) {
   var er = new Error('Defaults must be an object');
   function noop() {}
@@ -26,15 +28,15 @@ test('Input validation', function(t) {
   function bad_defs(defs) {
     return make_bad_defs;
     function make_bad_defs() {
-      return defaultable(defs, function(module, exports, DEFS) {});
+      return defaultable(m0dule(), defs, function(module, exports, DEFS) {});
     }
   }
 
   t.throws(bad_defs(null) , er, 'Throws for null defs');
   t.throws(bad_defs([1,2]), er, 'Throws for array defs');
   t.throws(bad_defs(noop) , er, 'Throws for function defs');
+  t.throws(bad_defs()  , 'Undefined defaults is a problem');
 
-  t.doesNotThrow(bad_defs()  , 'Undefined defaults is no problem');
   t.doesNotThrow(bad_defs({}), 'Empty defaults is no problem');
 
   t.end();
@@ -50,11 +52,11 @@ test('exports.default is not allowed', function(t) {
     t.throws(mod_export_defaults, msg);
 
     function export_defaults() {
-      defaultable({}, function(mods, exps) { exps.defaults = val })
+      defaultable(m0dule(), {}, function(mods, exps) { exps.defaults = val })
     }
 
     function mod_export_defaults() {
-      defaultable({}, function(module) { module.exports = { 'defaults': val } });
+      defaultable(m0dule(), {}, function(module) { module.exports = { 'defaults': val } });
     }
   })
 })
@@ -79,15 +81,13 @@ test('Flexible parameter order', function(t) {
   t.equal('forward', api.dir(), 'Defaults first works');
 
   api = null;
-  t.doesNotThrow(backward, 'Defaults second is ok');
-  t.ok(api, 'Defaults second returns the API');
-  t.equal('backward', api.dir(), 'Defaults second works');
+  t.throws(backward, 'Defaults second is ok');
 
   t.end();
 })
 
 test('Just using exports', function(t) {
-  var api = defaultable({}, my_mod);
+  var api = defaultable(m0dule(), {}, my_mod);
   function my_mod(module, exports) {
     function exports_func(input) { return input || true }
     exports.func = exports_func;
@@ -128,13 +128,13 @@ test('Using module.exports', function(t) {
   }
 
   just_exports = just_module = null;
-  api = defaultable({}, doesnt_replace);
+  api = defaultable(m0dule(), {}, doesnt_replace);
   t.equal(api.val1, 'val1', 'exports coexists with module.exports');
   t.equal(api.val2, 'val2', 'module.exports coexists with exports');
   t.same(just_module.exports, just_exports, 'module.exports and exports are the same');
 
   just_exports = just_module = null;
-  api = defaultable({}, does_replace);
+  api = defaultable(m0dule(), {}, does_replace);
   t.ok(just_exports.val1, 'exports should still have val1');
   t.notOk(api.val1, 'api val1 should be missing');
   t.notOk(just_module.exports.val1, 'api module.exports.val1 was replaced away');

@@ -17,23 +17,23 @@
 module.exports = defaultable;
 module.exports.merge = merge_obj;
 
-function defaultable(initial_defs, definer) {
-  if(typeof initial_defs == 'function' && typeof definer != 'function') {
-    var args = Array.prototype.slice.call(arguments);
-    definer      = args[0];
-    initial_defs = args[1];
-  }
+function defaultable(_Mod, _Defs, _Definer) {
+  var args = Array.prototype.slice.call(arguments);
+  var m0dule = { 'exports': {} };
 
-  if(typeof initial_defs == 'undefined')
-    initial_defs = {};
+  if(args.length == 1)
+    return defaultize(m0dule, {}, args[0]);
+  else if(args.length == 2)
+    return defaultize(m0dule, args[0], args[1]);
+  else if(args.length > 2)
+    return defaultize.apply(this, args);
+  else
+    throw new Error('Unknown arguments: ' + JSON.stringify(args));
+}
 
+function defaultize(real_module, initial_defs, definer) {
   if(!initial_defs || Array.isArray(initial_defs) || typeof initial_defs != 'object')
     throw new Error('Defaults must be an object');
-
-  if(!definer && typeof initial_defs === 'function') {
-    definer = initial_defs;
-    initial_defs = {};
-  }
 
   var defaulter = make_defaulter({});
   return defaulter(initial_defs);
