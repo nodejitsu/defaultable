@@ -19,11 +19,9 @@ var test = require('tap').test
   , D = defaultable
   ;
 
-function E(msg) { return new Error(msg) }
-function noop() {}
-
 test('Input validation', function(t) {
-  var er = E('Defaults must be an object');
+  var er = new Error('Defaults must be an object');
+  function noop() {}
 
   function bad_defs(defs) {
     return make_bad_defs;
