@@ -40,7 +40,7 @@ function defaultize(real_module, initial_defs, definer) {
   if(!real_module || !real_module.exports)
     throw new Error('Need to provide the module, with .exports object');
 
-  if(!initial_defs || Array.isArray(initial_defs) || typeof initial_defs != 'object')
+  if(!is_obj(initial_defs))
     throw new Error('Defaults must be an object');
 
   var mod_dir = path_lib.dirname(real_module.filename);
