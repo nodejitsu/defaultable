@@ -22,6 +22,30 @@ var path_lib = require('path');
 var real_require = require;
 
 
+/**
+ * Added for browser compatibility
+ */
+
+var _keys = function (obj) {
+  if(Object.keys) return Object.keys(obj);
+  var keys = [];
+  for(var k in obj){
+    if(obj.hasOwnProperty(k)) keys.push(k);
+  }
+  return keys;
+};
+
+var _each = function (obj, fn) {
+  for (var i = 0, len = obj.length; i < len; i++) {
+    fn(obj[i]);
+  }
+};
+
+var isArray = Array.isArray || function (obj) {
+    return toString.call(obj) === '[object Array]';
+};
+
+
 function fresh_defaultable(_mod, _defs, _definer) {
   var mod = defaultable.apply(this, arguments);
   mod.defaults._defaultable.fresh = true;
@@ -36,7 +60,8 @@ function defaultable(real_module, initial_defs, definer) {
   if(!is_obj(initial_defs))
     throw new Error('Defaults must be an object');
 
-  var mod_dir = path_lib.dirname(real_module.filename);
+  // use real_module.id if filename not available (running on couchdb)
+  var mod_dir = path_lib.dirname(real_module.filename || real_module.id);
   var mod_require = real_module.require || workaround_require;
 
   workaround_require._defaultable = true;
@@ -94,11 +119,11 @@ function merge_obj(high, low) {
       keys.push(k);
   }
 
-  Object.keys(high).forEach(add_key);
-  Object.keys(low).forEach(add_key);
+  _each(_keys(high), add_key);
+  _each(_keys(low), add_key);
 
   var result = {};
-  keys.forEach(function(key) {
+  _each(keys, function (key) {
     var high_val = high[key];
     var low_val = low[key];
 
@@ -140,5 +165,5 @@ function good_args(func) {
 }
 
 function is_obj(val) {
-  return val && !Array.isArray(val) && (typeof val === 'object')
+  return val && !isArray(val) && (typeof val === 'object')
 }
