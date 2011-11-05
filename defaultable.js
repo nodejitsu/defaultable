@@ -22,30 +22,6 @@ var path_lib = require('path');
 var real_require = require;
 
 
-/**
- * Added for browser compatibility
- */
-
-var _keys = function (obj) {
-  if(Object.keys) return Object.keys(obj);
-  var keys = [];
-  for(var k in obj){
-    if(obj.hasOwnProperty(k)) keys.push(k);
-  }
-  return keys;
-};
-
-var _each = function (obj, fn) {
-  for (var i = 0, len = obj.length; i < len; i++) {
-    fn(obj[i]);
-  }
-};
-
-var isArray = Array.isArray || function (obj) {
-    return toString.call(obj) === '[object Array]';
-};
-
-
 function fresh_defaultable(_mod, _defs, _definer) {
   var mod = defaultable.apply(this, arguments);
   mod.defaults._defaultable.fresh = true;
@@ -144,6 +120,31 @@ function merge_obj(high, low) {
 //
 // Utilities
 //
+
+/**
+ * Added for browser compatibility
+ */
+
+function _keys(obj) {
+  if(Object.keys) return Object.keys(obj);
+  var keys = [];
+  for(var k in obj){
+    if(obj.hasOwnProperty(k)) keys.push(k);
+  }
+  return keys;
+}
+
+function _each(obj, fn) {
+  for (var i = 0, len = obj.length; i < len; i++) {
+    fn(obj[i]);
+  }
+}
+
+function isArray(obj) {
+  if(Array.isArray)
+    return Array.isArray(obj);
+  return toString.call(obj) === '[object Array]';
+}
 
 function good_args(func) {
   // Make a function validate its parameters.
