@@ -86,7 +86,7 @@ function defaultable(real_module, initial_defs, definer) {
 
       require._defaultable = true;
       function require(path) {
-        var mod = mod_require(path);
+        var mod = mod_require.call(real_module, path);
         if(mod.defaults && typeof mod.defaults === 'function' && mod.defaults._defaultable && !mod.defaults._defaultable.fresh)
           return mod.defaults(final_defs);
         return mod;
