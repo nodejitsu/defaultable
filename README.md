@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/iriscouch/defaultable.png)](http://travis-ci.org/iriscouch/defaultable)
 # Default options for NodeJS, NPM, and CommonJS modules
 
 Defaultable is a simple drop-in tool to make your Node API very convenient for your users. It comes from internal [Iris Couch](http://www.iriscouch.com) tooling.
