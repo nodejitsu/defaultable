@@ -29,7 +29,7 @@ function fresh_defaultable(_mod, _defs, _definer) {
 }
 
 
-function defaultable(real_module, initial_defs, definer) {
+function defaultable(real_module, initial_defs, definer, real_require) {
   if(!real_module || !real_module.exports)
     throw new Error('Need to provide the module, with .exports object');
 
@@ -38,7 +38,7 @@ function defaultable(real_module, initial_defs, definer) {
 
   // use real_module.id if filename not available (running on couchdb)
   var mod_dir = path_lib.dirname(real_module.filename || real_module.id);
-  var mod_require = real_module.require || workaround_require;
+  var mod_require = real_module.require || real_require || workaround_require;
 
   workaround_require._defaultable = true;
   function workaround_require(path) {
