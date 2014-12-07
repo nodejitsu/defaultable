@@ -7,11 +7,12 @@
 , "description": "Transparent, drop-in helper for overridable, inheritable defaults in CommonJS modules"
 , "tags"       : ["nodejs", "npm", "commonjs", "development", "modules", "default", "defaults"]
 
-, "homepage": "http://github.com/iriscouch/defaultable"
+, "homepage": "http://github.com/nodejitsu/defaultable"
 , "repository": { "type": "git"
-                , "url": "git://github.com/iriscouch/defaultable" }
+                , "url": "git://github.com/nodejitsu/defaultable" }
 
-, "engines": [ "node" ]
+, "engines": { "node": "0.11.x || 0.10.x || 0.8.x"
+             }
 
 , "dependencies" : {
                    }
