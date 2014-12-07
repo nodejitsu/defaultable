@@ -6,6 +6,7 @@
             }
 , "description": "Transparent, drop-in helper for overridable, inheritable defaults in CommonJS modules"
 , "tags"       : ["nodejs", "npm", "commonjs", "development", "modules", "default", "defaults"]
+, "scripts": { "test": "tap t/*.js"}
 
 , "homepage": "http://github.com/nodejitsu/defaultable"
 , "repository": { "type": "git"
@@ -17,7 +18,7 @@
 , "dependencies" : {
                    }
 
-, "devDependencies": { "tap": "0.0.10"
+, "devDependencies": { "tap": "~0.4.13"
                      }
 
 , "main": "defaultable.js"
